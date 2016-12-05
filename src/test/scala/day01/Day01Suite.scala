@@ -1,6 +1,7 @@
 package adventofcode2016
 
 import org.scalatest.FunSuite
+import org.scalatest.Matchers._
 
 class Day01Suite extends FunSuite {
 
@@ -33,26 +34,31 @@ class Day01Suite extends FunSuite {
   }
 
   test("add, north") {
-    assert(add((0,0), North, 2) == (0,2))
+    add((0,0), North, 2) should equal (Array((0,1), (0,2)))
   }
 
   test("add, west") {
-    assert(add((15,13), West, 20) == (-5, 13))
+    add((3, 13), West, 5) should equal (Array((2, 13), (1, 13), (0, 13), (-1, 13), (-2, 13)))
   }
 
   test("walk1, 5 east from start") {
-    assert(walk1(North, (0,0), (Right, 5)) == (East, (5, 0)))
+    walk1(North, (0,0), (Right, 5))._1 should equal (East)
+    walk1(North, (0,0), (Right, 5))._2 should equal (Array((1, 0), (2, 0), (3, 0), (4, 0), (5, 0)))
   }
 
   test("R2 L3 = 5") {
-    assert(Day01.walk("R2, L3") == 5)
+    assert(lengthToLast("R2, L3") == 5)
   }
 
   test("R2, R2, R2 = 2") {
-    assert(Day01.walk("R2, R2, R2") == 2)
+    assert(lengthToLast("R2, R2, R2") == 2)
   }
 
   test("R5, L5, R5, R3 = 12") {
-    assert(Day01.walk("R5, L5, R5, R3") == 12)
+    assert(lengthToLast("R5, L5, R5, R3") == 12)
+  }
+
+  test("first visited twice R8, R4, R4, R8 = 4") {
+    assert(lengthToFirstVisitedTwice("R8, R4, R4, R8") == 4)
   }
 }

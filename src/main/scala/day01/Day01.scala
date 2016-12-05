@@ -52,46 +52,68 @@ object Day01 {
   }
 
   def add(start: Coordinates, dir: Direction, length: Int):
-      Coordinates = dir match {
-    case North => (start._1, start._2 + length)
-    case South => (start._1, start._2 - length)
-    case East => (start._1 + length, start._2)
-    case West => (start._1 - length, start._2)
+      Array[Coordinates] = dir match {
+    case North =>
+      Range(start._2, start._2 + length, +1).toArray.map(y => (start._1, y + 1))
+    case South =>
+      Range(start._2, start._2 - length, -1).toArray.map(y => (start._1, y - 1))
+    case East =>
+      Range(start._1, start._1 + length, +1).toArray.map(x => (x + 1, start._2))
+    case West =>
+      Range(start._1, start._1 - length, -1).toArray.map(x => (x - 1, start._2))
   }
 
   def walk1(
     startDir: Direction,
     startCoords: Coordinates,
-    direction: ParsedDirection): (Direction, Coordinates) = {
+    direction: ParsedDirection): (Direction, Array[Coordinates]) = {
     val newDir: Direction = changeDirection(startDir, direction._1)
     (newDir, add(startCoords, newDir, direction._2))
   }
 
   def walkRecur(
     dir: Direction,
-    coords: Coordinates,
+    path: Array[Coordinates],
     dirs: Array[ParsedDirection]
-  ): Coordinates = {
-    if (dirs.isEmpty) coords
+  ): Array[Coordinates] = {
+    if (dirs.isEmpty) path
     else {
-      val x = walk1(dir, coords, dirs.head)
-      walkRecur(x._1, x._2, dirs.tail)
+      val x = walk1(dir, path.last, dirs.head)
+      walkRecur(x._1, path ++ x._2, dirs.tail)
     }
   }
 
-  def walk(s: String): Int = {
-    length(
-      walkRecur(
-        North,
-        (0,0),
-        s.split(',').map(s2 => parse(s2.trim))))
+  def walk(s: String): Array[Coordinates] = {
+    walkRecur(
+      North,
+      Array((0,0)),
+      s.split(',').map(s2 => parse(s2.trim)))
+  }
+
+  def lengthToLast(s: String): Int = {
+    length(walk(s).last)
+  }
+
+  def lengthToFirstVisitedTwice(s: String): Int = {
+    val path = walk(s)
+    val duplicates = path.diff(path.distinct).distinct
+    val firstDuplicate = path.find(c => duplicates.contains(c))
+    firstDuplicate match {
+      case Some(x) => length(x)
+      case None => 0
+    }
   }
 
   def assignment1(): Int = {
-    walk(io.Source.fromFile("data/day01.txt").mkString)
+    lengthToLast(io.Source.fromFile("data/day01.txt").mkString)
+  }
+
+  def assignment2(): Int = {
+    lengthToFirstVisitedTwice(io.Source.fromFile("data/day01.txt").mkString)
   }
 
   def main(args: Array[String]): Unit = {
-    println("Moi")
+    println("Day01 assignment 1: " + assignment1())
+    println("Day01 assignment 2: " + assignment2())
   }
 }
